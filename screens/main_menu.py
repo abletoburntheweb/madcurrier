@@ -24,7 +24,6 @@ class MainMenu(QWidget):
         self.background_label = QLabel(self)
         self.is_intro_finished = False
 
-        # Загрузка шрифтов
         self.c_font_l = QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont("assets/font/sonic-hud-c-italic.ttf"))[0]
         self.c_font_b = QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont("assets/font/MUNRO-sharedassets0.assets-232.otf"))[0]
 
@@ -35,7 +34,8 @@ class MainMenu(QWidget):
 
     def init_ui(self):
         self.setFixedSize(1920, 1080)
-
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocus()
         self.gradient_label = self.create.g_panel()
 
         self.title_label = self.create.label("mad currier", font_size=66, bold=True, x=26, y=220, w=750, h=150, font_family=self.c_font_l)
@@ -78,21 +78,26 @@ class MainMenu(QWidget):
         QTimer.singleShot(4500, self.finish_intro)
 
     def finish_intro(self):
-        self.show_background = True
-        self.background_label.setPixmap(
-            self.background_pixmap.scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-        self.background_label.show()
-        if self.logo_label:
-            self.logo_label.hide()
-            self.logo_label.deleteLater()
-            self.logo_label = None
-        for widget in self.widgets_to_restore:
-            widget.show()
-            self.fade(widget, duration=600)
-        if self.parent:
-            self.parent.stop_intro_music()
-        self.is_intro_finished = True
-        QTimer.singleShot(500, lambda: self.parent.play_music(self.parent.menu_music_path))
+        if not self.is_intro_finished:
+            self.show_background = True
+            self.background_label.setPixmap(
+                self.background_pixmap.scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+            self.background_label.show()
+
+            if self.logo_label:
+                self.logo_label.hide()
+                self.logo_label.deleteLater()
+                self.logo_label = None
+
+            for widget in self.widgets_to_restore:
+                widget.show()
+                self.fade(widget, duration=600)
+
+            if self.parent:
+                self.parent.stop_intro_music()
+            self.is_intro_finished = True
+
+            QTimer.singleShot(500, lambda: self.parent.play_music(self.parent.menu_music_path))
 
     def fade(self, widget, duration=600):
         effect = QGraphicsOpacityEffect(widget)
@@ -171,6 +176,10 @@ class MainMenu(QWidget):
             elif self.is_settings_open:
                 self.close_settings()
                 self.parent.play_cancel_sound()
+
+        if event.key() == Qt.Key_Space:
+            if not self.is_intro_finished:
+                self.finish_intro()
 
     def disable_buttons(self):
         for btn in [self.start_button, self.start_duo_button, self.leaderboard_button, self.settings_button, self.exit_button]:
