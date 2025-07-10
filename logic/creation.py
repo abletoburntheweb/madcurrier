@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QPushButton, QLabel, QCheckBox, QSlider
+from PyQt5.QtWidgets import QPushButton, QLabel, QCheckBox, QSlider, QFrame
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
 
@@ -7,35 +7,49 @@ class Create:
     def __init__(self, parent):
         self.parent = parent
 
-    def bc_image(self, path, parent=None):
-        label = QLabel(parent or self.parent)
-        pixmap = QPixmap(path)
-        if pixmap.isNull():
-            print(f"Ошибка загрузки изображения: {path}")
-        else:
-            label.setPixmap(pixmap.scaled(label.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-        return label
+    def bc_image(label, pixmap, size):
+        scaled_pixmap = pixmap.scaled(size, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        label.setPixmap(scaled_pixmap)
+        label.resize(size)
+        label.show()
 
-    def button(self, text, callback, x, y, w, h, font_family="Montserrat"):
+    def button(self, text, callback, x, y, w, h, bold=False, font_family="Montserrat", preset=1):
         button = QPushButton(text, self.parent)
-        button.setFont(QFont(font_family, 20))
+        font = QFont(font_family, 20)
+        if bold:
+            font.setBold(True)
+        button.setFont(font)
         button.clicked.connect(lambda: self.callback(callback))
         button.setGeometry(x, y, w, h)
-        button.setStyleSheet("""
-            QPushButton {
-                background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                              stop:0 black, stop:1 transparent);
-                color: white;
-                border: none;
-                padding-left: 10px;
-                font-size: 20px;
-                text-align: left;
-            }
-            QPushButton:hover {
-                background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                              stop:0 darkgray, stop:1 transparent);
-            }
-        """)
+        if preset == 1:
+            button.setStyleSheet("""
+                QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                                  stop:0 black, stop:1 transparent);
+                    color: white;
+                    border: none;
+                    padding-left: 10px;
+                    font-size: 20px;
+                    text-align: left;
+                }
+                QPushButton:hover {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                                  stop:0 darkgray, stop:1 transparent);
+                }
+            """)
+        elif preset == 2:
+            button.setStyleSheet("""
+                QPushButton {
+                    color: white;
+                    background-color: rgba(255, 255, 255, 20);
+                    border: 2px solid white;
+                    border-radius: 10px;
+                    padding: 10px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(255, 255, 255, 40);
+                }
+            """)
         return button
 
     def vert_buttons(self, buttons_data, s_x=0, s_y=0, spacing=80):
@@ -72,22 +86,6 @@ class Create:
         label.setGeometry(x, y, w, h)
         return label
 
-    def transparent_button(self, text, font_size=18, font_family="Montserrat"):
-        button = QPushButton(text)
-        button.setFont(QFont(font_family, font_size))
-        button.setStyleSheet("""
-            QPushButton {
-                color: white;
-                background-color: rgba(255, 255, 255, 20);
-                border: 2px solid white;
-                border-radius: 10px;
-                padding: 10px;
-            }
-            QPushButton:hover {
-                background-color: rgba(255, 255, 255, 40);
-            }
-        """)
-        return button
     def ver_label(self, version="unknown", x=20, y=None, w=100, h=30, font_size=14, font_family="Montserrat"):
         text = f"ver{version}"
         label = QLabel(text, self.parent)
@@ -108,11 +106,21 @@ class Create:
         """)
         return label
 
-    def slider(self, orientation=Qt.Horizontal, min_value=0, max_value=100, value=50):
-        slider = QSlider(orientation)
+    def slider(self, text, min_value=0, max_value=100, value=50, bold=False, callback=None, x=0, y=0, w=600, h=30, font_family="Montserrat",):
+        label = QLabel(text, self.parent)
+        font = QFont(font_family, 18)
+        if bold:
+            font.setBold(True)
+        label.setFont(font)
+        label.setStyleSheet("color: white; background-color: transparent;")
+        label.setGeometry(x, y, w, h)
+
+        slider = QSlider(Qt.Horizontal, self.parent)
         slider.setMinimum(min_value)
         slider.setMaximum(max_value)
         slider.setValue(value)
+        slider.setGeometry(x, y+40, w, 20)
+
         slider.setStyleSheet("""
             QSlider::groove:horizontal {
                 height: 8px;
@@ -130,11 +138,21 @@ class Create:
                 border-radius: 4px;
             }
         """)
-        return slider
 
-    def checkbox(self, text, checked=False):
-        checkbox = QCheckBox(text)
-        checkbox.setFont(QFont("Montserrat", 18))
+        if callback:
+            slider.valueChanged.connect(callback)
+
+        return label, slider
+
+    def checkbox(self, text, checked=False, bold=False, callback=None, x=0, y=0, w=250, h=30, font_family="Montserrat",):
+        checkbox = QCheckBox(text, self.parent)
+        font = QFont(font_family, 18)
+        if bold:
+            font.setBold(True)
+        checkbox.setFont(font)
+        checkbox.setChecked(checked)
+        checkbox.setGeometry(x, y, w, h)
+
         checkbox.setStyleSheet("""
             QCheckBox {
                 color: white;
@@ -160,8 +178,19 @@ class Create:
                 border: 2px solid rgba(255, 255, 255, 150);
             }
         """)
-        checkbox.setChecked(checked)
+
+        if callback:
+            checkbox.stateChanged.connect(lambda state: callback(state))
+
         return checkbox
+
+    def separator(self, x=0, y=0, w=600, h=20, color="rgba(255, 255, 255, 50)"):
+        line = QFrame(self.parent)
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet(f"color: {color};")
+        line.setGeometry(x, y, w, h)
+        return line
 
     def callback(self, callback):
         if hasattr(self.parent, "parent") and self.parent.parent:

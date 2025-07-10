@@ -14,38 +14,28 @@ class SettingsMenu(QWidget):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
         layout.setSpacing(20)
+        current_y = 30
+        current_x = 26
+        space = 70
 
-        title_label = self.create.label("Настройки", font_size=36, bold=True)
-        layout.addWidget(title_label)
+        self.title_label = self.create.label("Настройки", font_size=36, bold=True, x=current_x, y=30, w=750, h=60)
+        current_y += space
 
-        self.fullscreen_toggle = self.create.checkbox("Полноэкранный режим", checked=self.parent.settings.get("fullscreen", False))
-        self.fullscreen_toggle.stateChanged.connect(self.toggle_fullscreen)
-        layout.addWidget(self.fullscreen_toggle)
+        self.fullscreen_checkbox = self.create.checkbox("Полноэкранный режим",checked=self.parent.settings.get("fullscreen", False),callback=self.toggle_fullscreen,x=current_x,y=current_y,w=300)
+        current_y += 40
 
-        volume_label = self.create.label("Громкость музыки", font_size=18)
-        layout.addWidget(volume_label)
-        self.volume_slider = self.create.slider(value=self.parent.settings.get("music_volume", 50))
-        self.volume_slider.valueChanged.connect(self.update_music_volume)
-        layout.addWidget(self.volume_slider)
+        self.volume_slider = self.create.slider("Громкость музыки", min_value=0, max_value=100,value=self.parent.settings.get("music_volume", 50),callback=self.update_music_volume, x=current_x, y=current_y, w=1000)
+        current_y += space
 
-        effects_label = self.create.label("Громкость звуков", font_size=18)
-        layout.addWidget(effects_label)
-        self.effects_slider = self.create.slider(value=self.parent.settings.get("effects_volume", 80))
-        self.effects_slider.valueChanged.connect(self.update_effects_volume)
-        layout.addWidget(self.effects_slider)
+        self.volume_slider = self.create.slider("Громкость звуков", min_value=0, max_value=100,value=self.parent.settings.get("effects_volume", 50),callback=self.update_effects_volume, x=current_x, y=current_y, w=1000)
+        current_y += space
 
-        self.fps_toggle = self.create.checkbox("Отображать FPS", checked=self.parent.settings.get("show_fps", True))
-        self.fps_toggle.stateChanged.connect(self.toggle_fps)
-        layout.addWidget(self.fps_toggle)
+        self.fps_toggle = self.create.checkbox("Отображение фпс",checked=self.parent.settings.get("show_fps", False),callback=self.toggle_fps,x=current_x,y=current_y,w=500)
+        current_y += space
 
-        separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
-        separator.setStyleSheet("color: rgba(255, 255, 255, 50);")
-        layout.addWidget(separator)
+        self.separator_line = self.create.separator(x=current_x,y=current_y,w=1000,h=10,color="rgba(255, 255, 255, 50)")
 
-        self.close_button = self.create.transparent_button("Закрыть")
-        self.close_button.clicked.connect(self.close_settings)
-        layout.addWidget(self.close_button)
+        self.close_button = self.create.button("Закрыть", self.close_settings, x=150, y=500, w=750, h=55, preset=2)
 
         self.setLayout(layout)
 

@@ -11,17 +11,11 @@ class MainMenu(QWidget):
         self.parent = parent
         self.overlay = None
         self.settings_menu = None
-        self.leaderboard_widget = None
-        self.current_modal_widget = None
         self.is_leaderboard_open = False
         self.is_settings_open = False
-        self.current_mode = None
-        self.background_pixmap = QPixmap("assets/textures/town.png")
-        self.logo_pixmap = QPixmap("assets/textures/logo2.png")
+
         self.b_x = 25
         self.b_y = 450
-        self.logo_label = None
-        self.background_label = QLabel(self)
         self.is_intro_finished = False
 
         self.c_font_l = QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont("assets/font/sonic-hud-c-italic.ttf"))[0]
@@ -30,12 +24,17 @@ class MainMenu(QWidget):
         self.create = Create(self)
 
         self.init_ui()
-        self.init_intro()
 
     def init_ui(self):
         self.setFixedSize(1920, 1080)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()
+
+        self.logo_pixmap = QPixmap("assets/textures/logo2.png")
+
+        self.background_label = QLabel(self)
+        self.background_label.setPixmap(QPixmap("assets/textures/town.png").scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+
         self.gradient_label = self.create.g_panel()
 
         self.title_label = self.create.label("mad currier", font_size=66, bold=True, x=26, y=220, w=750, h=150, font_family=self.c_font_l)
@@ -61,54 +60,6 @@ class MainMenu(QWidget):
 
         for widget in self.widgets_to_restore:
             widget.setProperty("original_pos", widget.pos())
-            widget.hide()
-
-    def init_intro(self):
-        self.logo_label = QLabel(self)
-        if self.logo_pixmap.isNull():
-            print("Ошибка: не удалось загрузить файл assets/textures/logo2.png")
-        else:
-            self.logo_label.setPixmap(
-                self.logo_pixmap.scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-            self.logo_label.setGeometry(0, 0, self.width(), self.height())
-            self.logo_label.setAlignment(Qt.AlignCenter)
-            self.logo_label.show()
-            self.fade(self.logo_label, duration=1500)
-        QTimer.singleShot(10, lambda: self.parent.play_intro_music())
-        QTimer.singleShot(4500, self.finish_intro)
-
-    def finish_intro(self):
-        if not self.is_intro_finished:
-            self.show_background = True
-            self.background_label.setPixmap(
-                self.background_pixmap.scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-            self.background_label.show()
-
-            if self.logo_label:
-                self.logo_label.hide()
-                self.logo_label.deleteLater()
-                self.logo_label = None
-
-            for widget in self.widgets_to_restore:
-                widget.show()
-                self.fade(widget, duration=600)
-
-            if self.parent:
-                self.parent.stop_intro_music()
-            self.is_intro_finished = True
-
-            QTimer.singleShot(500, lambda: self.parent.play_music(self.parent.menu_music_path))
-
-    def fade(self, widget, duration=600):
-        effect = QGraphicsOpacityEffect(widget)
-        widget.setGraphicsEffect(effect)
-        animation = QPropertyAnimation(effect, b"opacity")
-        animation.setDuration(duration)
-        animation.setEasingCurve(QEasingCurve.OutQuad)
-        animation.setStartValue(0)
-        animation.setEndValue(1)
-        animation.start()
-        widget.animation = animation
 
     def start_game(self):
         pass
