@@ -45,13 +45,13 @@ class SettingsMenu(QWidget):
 
     def update_music_volume(self, value):
         if self.parent:
-            self.parent.media_player.setVolume(value)
+            self.parent.music_manager.set_music_volume(value)
             self.parent.settings["music_volume"] = value
             self.parent.save_settings()
 
     def update_effects_volume(self, value):
         if self.parent:
-            self.parent.sound_player.setVolume(value)
+            self.parent.music_manager.set_sfx_volume(value)
             self.parent.settings["effects_volume"] = value
             self.parent.save_settings()
 
@@ -65,4 +65,5 @@ class SettingsMenu(QWidget):
     def close_settings(self):
         if self.parent:
             self.parent.main_menu.close_settings()
-            self.parent.play_cancel_sound()
+            if hasattr(self.parent, "music_manager"):
+                self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
