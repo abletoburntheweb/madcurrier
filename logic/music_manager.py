@@ -4,14 +4,12 @@ import json
 
 class MusicManager:
     def __init__(self):
-        # Пути к аудиофайлам
         self.menu_music_path = "assets/audio/Niamos!.mp3"
         self.game_music_path = "assets/audio/game_music.mp3"
         self.intro_music_path = "assets/audio/intro_music.mp3"
         self.select_sound_path = "assets/audio/select_click.mp3"
         self.cancel_sound_path = "assets/audio/cancel_click.mp3"
 
-        # Настройки по умолчанию
         self.settings_file = "config/settings.json"
         self.default_settings = {
             "music_volume": 50,
@@ -84,7 +82,7 @@ class MusicManager:
             try:
                 self.music_player.mediaStatusChanged.disconnect()
             except TypeError:
-                pass  # Нет существующих соединений
+                pass
         except Exception as e:
             print(f"Ошибка остановки музыки: {e}")
 
@@ -101,3 +99,9 @@ class MusicManager:
             self.sfx_player.stop()
         except Exception as e:
             print(f"Ошибка остановки звука: {e}")
+
+    def play_select_sound(self):
+        self.play_sfx(self.select_sound_path)
+
+    def play_cancel_sound(self):
+        self.play_sfx(self.cancel_sound_path)

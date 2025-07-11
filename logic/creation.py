@@ -192,15 +192,5 @@ class Create:
         line.setGeometry(x, y, w, h)
         return line
 
-    def callback(self, callback):   
-        if hasattr(self.parent, "parent") and self.parent.parent:
-            music_manager = getattr(self.parent.parent, "music_manager", None)
-            if music_manager:
-                if callback.__name__ in ("open_settings", "open_leaderboard"):
-                    music_manager.play_sfx(music_manager.select_sound_path)
-                elif callback.__name__ == "exit_game":
-                    music_manager.play_sfx(music_manager.cancel_sound_path)
-                else:
-                    music_manager.play_sfx(music_manager.select_sound_path)
-
+    def callback(self, callback):
         callback()

@@ -66,4 +66,4 @@ class SettingsMenu(QWidget):
         if self.parent:
             self.parent.main_menu.close_settings()
             if hasattr(self.parent, "music_manager"):
-                self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
+                self.parent.music_manager.play_cancel_sound()

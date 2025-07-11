@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QGraphicsOpacityEffect
 from PyQt5.QtGui import QPixmap, QFont, QFontDatabase
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
 
+from logic.music_manager import MusicManager
 from screens.settings_menu import SettingsMenu
 from logic.creation import Create
 
@@ -23,6 +24,7 @@ class MainMenu(QWidget):
         self.c_font_b = QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont("assets/font/MUNRO-sharedassets0.assets-232.otf"))[0]
 
         self.create = Create(self)
+        self.music_manager = MusicManager()
 
         self.init_ui()
 
@@ -32,9 +34,7 @@ class MainMenu(QWidget):
         self.setFocus()
 
         self.background_label = QLabel(self)
-        self.background_label.setPixmap(
-            QPixmap("assets/textures/town.png").scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-        )
+        self.background_label.setPixmap(QPixmap("assets/textures/town.png").scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
         self.gradient_label = self.create.g_panel()
 
@@ -56,8 +56,7 @@ class MainMenu(QWidget):
             widget.setProperty("original_pos", widget.pos())
 
     def start_game(self):
-        if self.parent:
-            self.parent.music_manager.play_sfx(self.parent.music_manager.select_sound_path)
+        self.music_manager.play_select_sound()
 
     def restore_positions(self):
         self.gradient_label.move(0, 0)
@@ -72,23 +71,17 @@ class MainMenu(QWidget):
         self.enable_buttons()
 
     def start_duo(self):
-        if self.parent:
-            self.parent.music_manager.play_sfx(self.parent.music_manager.select_sound_path)
+        self.music_manager.play_select_sound()
 
     def open_leaderboard(self):
-        if self.parent:
-            self.parent.music_manager.play_sfx(self.parent.music_manager.select_sound_path)
+        self.music_manager.play_select_sound()
 
     def open_settings(self):
         if self.is_settings_open:
-            if self.parent:
-                self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
-            self.close_settings()
+            self.close_settings(play_sound=True)
             return
 
-        if self.parent:
-            self.parent.music_manager.play_sfx(self.parent.music_manager.select_sound_path)
-
+        self.music_manager.play_select_sound()
         self.close_leaderboard()
 
         if not self.overlay:
@@ -108,10 +101,11 @@ class MainMenu(QWidget):
         self.is_settings_open = True
 
     def close_leaderboard(self):
-        if self.parent:
-            self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
+        self.music_manager.play_cancel_sound()
 
-    def close_settings(self):
+    def close_settings(self, play_sound=False):
+        if play_sound:
+            self.music_manager.play_cancel_sound()
         if self.settings_menu:
             self.settings_menu.hide()
         if self.overlay:
@@ -119,20 +113,16 @@ class MainMenu(QWidget):
         self.is_settings_open = False
 
     def exit_game(self):
+        self.music_manager.play_cancel_sound()
         if self.parent:
-            self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
             self.parent.exit_game()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             if self.is_leaderboard_open:
                 self.close_leaderboard()
-                if self.parent:
-                    self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
             elif self.is_settings_open:
-                self.close_settings()
-                if self.parent:
-                    self.parent.music_manager.play_sfx(self.parent.music_manager.cancel_sound_path)
+                self.close_settings(play_sound=True)
 
         if event.key() == Qt.Key_Space:
             if not self.is_intro_finished:
