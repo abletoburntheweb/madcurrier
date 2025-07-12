@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame
 from logic.creation import Create
+from logic.transitions import Transitions
 
 
 class SettingsMenu(QWidget):
@@ -8,6 +9,7 @@ class SettingsMenu(QWidget):
         super().__init__(parent)
         self.parent = parent
         self.create = Create(self)
+        self.transitions = Transitions(self.parent)
         self.init_ui()
 
     def init_ui(self):
@@ -35,7 +37,9 @@ class SettingsMenu(QWidget):
 
         self.separator_line = self.create.separator(x=current_x,y=current_y,w=1000,h=10,color="rgba(255, 255, 255, 50)")
 
-        self.close_button = self.create.button("Закрыть", self.close_settings, x=150, y=500, w=750, h=55, preset=2)
+        self.settings_button = self.create.button(
+            "Настройки", self.transitions.open_settings, x=150, y=500, w=750, h=55, preset=2
+        )
 
         self.setLayout(layout)
 
@@ -61,9 +65,3 @@ class SettingsMenu(QWidget):
             self.parent.save_settings()
             if hasattr(self.parent.game_screen, "update_fps_visibility"):
                 self.parent.game_screen.update_fps_visibility(bool(state))
-
-    def close_settings(self):
-        if self.parent:
-            self.parent.main_menu.close_settings()
-            if hasattr(self.parent, "music_manager"):
-                self.parent.music_manager.play_cancel_sound()
