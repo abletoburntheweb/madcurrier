@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
 
 from logic.music_manager import MusicManager
 from logic.transitions import Transitions
-from screens.settings_menu import SettingsMenu
 from logic.creation import Create
+from logic.settings_manager import load_settings, save_settings
 
 
 class MainMenu(QWidget):
@@ -17,6 +17,8 @@ class MainMenu(QWidget):
         self.is_leaderboard_open = False
         self.is_settings_open = False
 
+        self.settings = load_settings()
+
         self.b_x = 25
         self.b_y = 450
         self.is_intro_finished = False
@@ -25,7 +27,7 @@ class MainMenu(QWidget):
         self.c_font_b = QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont("assets/font/MUNRO-sharedassets0.assets-232.otf"))[0]
 
         self.create = Create(self)
-        self.music_manager = MusicManager()
+        self.music_manager = MusicManager(self.settings)
         self.transitions = Transitions(self.parent)
 
         self.init_ui()
@@ -34,6 +36,8 @@ class MainMenu(QWidget):
         self.setFixedSize(1920, 1080)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()
+
+        self.music_manager.play_music(music_path="assets/audio/Niamos!.mp3")
 
         self.background_label = QLabel(self)
         self.background_label.setPixmap(QPixmap("assets/textures/town.png").scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))

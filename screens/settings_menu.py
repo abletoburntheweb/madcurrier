@@ -49,14 +49,14 @@ class SettingsMenu(QWidget):
 
     def update_music_volume(self, value):
         if self.parent:
-            self.parent.music_manager.set_music_volume(value)
             self.parent.settings["music_volume"] = value
+            self.parent.music_manager.set_music_volume(value)
             self.parent.save_settings()
 
     def update_effects_volume(self, value):
         if self.parent:
-            self.parent.music_manager.set_sfx_volume(value)
             self.parent.settings["effects_volume"] = value
+            self.parent.music_manager.set_sfx_volume(value)
             self.parent.save_settings()
 
     def toggle_fps(self, state):
