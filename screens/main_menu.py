@@ -27,7 +27,7 @@ class MainMenu(QWidget):
         self.c_font_b = QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont("assets/font/MUNRO-sharedassets0.assets-232.otf"))[0]
 
         self.create = Create(self)
-        self.music_manager = MusicManager(self.settings)
+        self.music_manager = self.parent.music_manager
         self.transitions = Transitions(self.parent)
 
         self.init_ui()
