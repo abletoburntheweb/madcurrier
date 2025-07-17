@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QStackedWidget
 from PyQt5.QtCore import Qt
 from logic.creation import Create
+from logic.intro_animation import IntroAnimation
 from logic.music_manager import MusicManager
 from screens.settings_menu import SettingsMenu
 from screens.main_menu import MainMenu
@@ -26,8 +27,9 @@ class GameEngine(QStackedWidget):
         self.init_screens()
 
     def init_screens(self):
-        # Создание экранов
         self.main_menu = MainMenu(self)
+        self.intro = IntroAnimation(parent=self, main_menu_widget=self.main_menu)
+        self.addWidget(self.intro)
         self.addWidget(self.main_menu)
         self.settings_menu = SettingsMenu(self)
         self.addWidget(self.settings_menu)
@@ -39,7 +41,7 @@ class GameEngine(QStackedWidget):
             self.set_fullscreen(False)
 
         # Устанавливаем главный экран
-        self.setCurrentWidget(self.main_menu)
+        self.setCurrentWidget(self.intro)
 
     def save_settings(self):
         save_settings(self.settings)
@@ -51,8 +53,8 @@ class GameEngine(QStackedWidget):
                 print("Интро еще не завершено. Музыка главного меню не запускается.")
                 return
             self.music_manager.play_music(self.music_manager.menu_music_path)
-        elif isinstance(current_widget, GameScreen) or isinstance(current_widget, GameScreenDuo):
-            self.music_manager.play_music(self.music_manager.game_music_path)
+        # elif isinstance(current_widget, GameScreen) or isinstance(current_widget, GameScreenDuo):
+        #     self.music_manager.play_music(self.music_manager.game_music_path)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():

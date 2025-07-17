@@ -4,14 +4,22 @@ from PyQt5.QtGui import QPixmap
 
 
 class IntroAnimation(QWidget):
-    def __init__(self, parent=None, logo_path="assets/textures/logo2.png", duration=1500, intro_length=4500):
+    def __init__(self, parent=None, main_menu_widget=None, logo_path="assets/textures/logo2.png", duration=1500,
+                 intro_length=4500):
         super().__init__(parent)
+        self.parent = parent
+        self.main_menu_widget = main_menu_widget
         self.parent = parent
         self.logo_path = logo_path
         self.duration = duration
         self.intro_length = intro_length
         self.logo_label = None
         self.is_finished = False
+        self.setFixedSize(1920, 1080)
+        self.music_manager = getattr(parent, "music_manager", None)
+
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocus()
         self.init_intro()
 
     def init_intro(self):
@@ -32,6 +40,9 @@ class IntroAnimation(QWidget):
         self.fade_in(self.logo_label)
 
         QTimer.singleShot(self.intro_length, self.finish_intro)
+
+        if self.music_manager:
+            self.music_manager.play_music(self.music_manager.intro_music_path)
 
     def fade_in(self, widget):
         effect = QGraphicsOpacityEffect(widget)
@@ -67,6 +78,16 @@ class IntroAnimation(QWidget):
 
         self.is_finished = True
 
-        # Сигнал о завершении интро
-        if hasattr(self.parent, "on_intro_finished"):
-            self.parent.on_intro_finished()
+        if self.parent and self.main_menu_widget:
+            self.parent.setCurrentWidget(self.main_menu_widget)
+
+            if self.music_manager:
+                self.music_manager.stop_music()
+                self.music_manager.play_music(self.music_manager.menu_music_path)
+
+            if hasattr(self.main_menu_widget, "is_intro_finished"):
+                self.main_menu_widget.is_intro_finished = True
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Space:
+            self.finish_intro()

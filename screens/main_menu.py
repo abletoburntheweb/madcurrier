@@ -37,7 +37,6 @@ class MainMenu(QWidget):
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()
 
-        self.music_manager.play_music(music_path="assets/audio/Niamos!.mp3")
 
         self.background_label = QLabel(self)
         self.background_label.setPixmap(QPixmap("assets/textures/town.png").scaled(self.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
