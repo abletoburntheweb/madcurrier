@@ -9,7 +9,7 @@ class MusicManager:
 
     def __init__(self, settings):
         self.menu_music = "Niamos!.mp3"
-        self.game_music = "game_music.mp3"
+        self.game_music = "Why Did You Tell Me That You Loved Me.mp3"
         self.intro_music = "intro_music.mp3"
         self.select_sound = "select_click.mp3"
         self.cancel_sound = "cancel_click.mp3"
@@ -61,12 +61,10 @@ class MusicManager:
             print(f"Ошибка остановки музыки: {e}")
 
     def play_sfx(self, sound_path):
-        try:
-            media_content = QMediaContent(QUrl.fromLocalFile(sound_path))
-            self.sfx_player.setMedia(media_content)
-            self.sfx_player.play()
-        except Exception as e:
-            print(f"Ошибка воспроизведения звука: {e}")
+        full_path = self._get_full_path(sound_path)
+        media_content = QMediaContent(QUrl.fromLocalFile(full_path))
+        self.sfx_player.setMedia(media_content)
+        self.sfx_player.play()
 
     def play_select_sound(self):
         self.play_sfx(self.select_sound)

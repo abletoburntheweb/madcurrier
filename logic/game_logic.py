@@ -7,6 +7,8 @@ from PyQt5.QtCore import Qt
 from logic.creation import Create
 from logic.intro_animation import IntroAnimation
 from logic.music_manager import MusicManager
+from screens.game_screen import GameScreen
+from screens.pause_menu import PauseMenu
 from screens.settings_menu import SettingsMenu
 from screens.main_menu import MainMenu
 from logic.settings_manager import load_settings, save_settings
@@ -33,6 +35,10 @@ class GameEngine(QStackedWidget):
         self.addWidget(self.main_menu)
         self.settings_menu = SettingsMenu(self)
         self.addWidget(self.settings_menu)
+        self.game_screen = GameScreen(parent=self)
+        self.addWidget(self.game_screen)
+        self.pause_menu = PauseMenu(parent=self)
+        self.addWidget(self.pause_menu)
 
         # Установка полноэкранного режима
         if self.settings.get("fullscreen", False):
@@ -52,9 +58,9 @@ class GameEngine(QStackedWidget):
             if not current_widget.is_intro_finished:
                 print("Интро еще не завершено. Музыка главного меню не запускается.")
                 return
-            self.music_manager.play_music(self.music_manager.menu_music_path)
-        # elif isinstance(current_widget, GameScreen) or isinstance(current_widget, GameScreenDuo):
-        #     self.music_manager.play_music(self.music_manager.game_music_path)
+            self.music_manager.play_music(self.music_manager.menu_music)
+        elif isinstance(current_widget, GameScreen):
+            self.music_manager.play_music(self.music_manager.game_music)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():
@@ -77,10 +83,6 @@ class GameEngine(QStackedWidget):
         current_widget = self.currentWidget()
         if hasattr(current_widget, "toggle_pause"):
             current_widget.toggle_pause()
-
-    def exit_game(self):
-        self.music_manager.stop_music()
-        self.close()
 
     @staticmethod
     def interpolate_color(color1, color2, factor):

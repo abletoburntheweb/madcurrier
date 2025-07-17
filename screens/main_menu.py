@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QGraphicsOpacityEffect
 from PyQt5.QtGui import QPixmap, QFont, QFontDatabase
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
 
-from logic.music_manager import MusicManager
 from logic.transitions import Transitions
 from logic.creation import Create
 from logic.settings_manager import load_settings, save_settings
@@ -14,8 +13,10 @@ class MainMenu(QWidget):
         self.parent = parent
         self.overlay = None
         self.settings_menu = None
+        self.game_screen = None
         self.is_leaderboard_open = False
         self.is_settings_open = False
+        self.is_game_open = False
 
         self.settings = load_settings()
 
@@ -49,22 +50,22 @@ class MainMenu(QWidget):
 
         self.create.ver_label(version="99.99.99", font_family=self.c_font_b)
 
-        self.start_button = self.create.button("Начать игру", self.start_game, x=self.b_x, y=self.b_y, w=750, h=55, font_family=self.c_font_b)
+        self.start_button = self.create.button(
+            "Начать игру", self.transitions.open_game, x=self.b_x, y=self.b_y, w=750, h=55, font_family=self.c_font_b
+        )
         self.start_duo_button = self.create.button("Играть вдвоем", self.start_duo, x=self.b_x, y=self.b_y + 80, w=750, h=55, font_family=self.c_font_b)
         self.leaderboard_button = self.create.button( "Таблица рекордов", self.open_leaderboard, x=self.b_x, y=self.b_y + 160, w=750, h=55, font_family=self.c_font_b)
         self.settings_button = self.create.button(
             "Настройки", self.transitions.open_settings, x=self.b_x, y=self.b_y + 240, w=750, h=55,
             font_family=self.c_font_b
         )
-        self.exit_button = self.create.button("Выход", self.exit_game, x=self.b_x, y=self.b_y + 320, w=750, h=55, font_family=self.c_font_b)
+        self.exit_button = self.create.button("Выход", self.transitions.exit_game, x=self.b_x, y=self.b_y + 320, w=750, h=55, font_family=self.c_font_b)
 
         self.widgets_to_restore = [self.background_label,self.gradient_label,self.title_label,self.start_button, self.start_duo_button,self.leaderboard_button,self.settings_button,self.exit_button, ]
 
         for widget in self.widgets_to_restore:
             widget.setProperty("original_pos", widget.pos())
 
-    def start_game(self):
-        self.music_manager.play_select_sound()
 
     def restore_positions(self):
         self.gradient_label.move(0, 0)
@@ -87,21 +88,12 @@ class MainMenu(QWidget):
     def close_leaderboard(self):
         self.music_manager.play_cancel_sound()
 
-    def exit_game(self):
-        self.music_manager.play_cancel_sound()
-        if self.parent:
-            self.parent.exit_game()
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             if self.is_leaderboard_open:
                 self.close_leaderboard()
             elif self.is_settings_open:
                 self.transitions.close_settings()
-
-        if event.key() == Qt.Key_Space:
-            if not self.is_intro_finished:
-                self.finish_intro()
 
     def disable_buttons(self):
         for btn in [self.start_button, self.start_duo_button, self.leaderboard_button, self.settings_button, self.exit_button]:
