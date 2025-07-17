@@ -1,33 +1,38 @@
 # logic/music_manager.py
+import os
 
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
 
 class MusicManager:
-    def __init__(self, settings):
-        self.menu_music_path = "assets/audio/Niamos!.mp3"
-        self.game_music_path = "assets/audio/game_music.mp3"
-        self.intro_music_path = "assets/audio/intro_music.mp3"
-        self.select_sound_path = "assets/audio/select_click.mp3"
-        self.cancel_sound_path = "assets/audio/cancel_click.mp3"
+    AUDIO_DIR = "assets/audio"
 
-        # Инициализация медиаплееров
+    def __init__(self, settings):
+        self.menu_music = "Niamos!.mp3"
+        self.game_music = "game_music.mp3"
+        self.intro_music = "intro_music.mp3"
+        self.select_sound = "select_click.mp3"
+        self.cancel_sound = "cancel_click.mp3"
+
         self.music_player = QMediaPlayer()
         self.sfx_player = QMediaPlayer()
 
-        # Установка начальной громкости из переданных настроек
         self.set_music_volume(settings.get("music_volume", 50))
         self.set_sfx_volume(settings.get("effects_volume", 80))
 
+    def _get_full_path(self, filename):
+        return os.path.join(self.AUDIO_DIR, filename)
     def set_music_volume(self, volume):
         self.music_player.setVolume(volume)
 
     def set_sfx_volume(self, volume):
         self.sfx_player.setVolume(volume)
 
-    def play_music(self, music_path, loop=True):
+    def play_music(self, music_file, loop=True):
+        music_path = self._get_full_path(music_file)
         try:
-            if self.music_player.currentMedia() and self.music_player.currentMedia().canonicalUrl().toString() == QUrl.fromLocalFile(music_path).toString():
+            current = self.music_player.currentMedia()
+            if current and current.canonicalUrl().toString() == QUrl.fromLocalFile(music_path).toString():
                 print("Музыка уже играет. Ничего не делаем.")
                 return
             self.music_player.stop()
@@ -64,7 +69,7 @@ class MusicManager:
             print(f"Ошибка воспроизведения звука: {e}")
 
     def play_select_sound(self):
-        self.play_sfx(self.select_sound_path)
+        self.play_sfx(self.select_sound)
 
     def play_cancel_sound(self):
-        self.play_sfx(self.cancel_sound_path)
+        self.play_sfx(self.cancel_sound)
